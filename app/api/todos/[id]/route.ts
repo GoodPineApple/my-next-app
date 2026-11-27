@@ -5,7 +5,7 @@ const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -24,7 +24,7 @@ export async function PUT(
 
     const updatedTodo: Todo = await response.json();
     return NextResponse.json(updatedTodo);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to update todo" },
       { status: 500 }
@@ -34,7 +34,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -47,7 +47,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete todo" },
       { status: 500 }

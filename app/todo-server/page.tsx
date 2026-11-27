@@ -48,3 +48,6 @@ export default function TodoServerPage() {
     </div>
   );
 }
+
+// 요청이 올 때마다 서버에서 할 일을 받아 그림 — 빌드 때 미리 그리지 않음
+export const dynamic = "force-dynamic";

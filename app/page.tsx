@@ -85,7 +85,7 @@ export default function Home() {
           </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
             <div>
-              <strong>프레임워크:</strong> Next.js 15.4.6
+              <strong>프레임워크:</strong> Next.js 16.4.6
             </div>
             <div>
               <strong>스타일링:</strong> Tailwind CSS

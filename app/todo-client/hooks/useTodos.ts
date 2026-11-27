@@ -21,7 +21,7 @@ export function useTodos() {
     fetchTodos();
   }, []);
 
-  const fetchTodos = async () => {
+  async function fetchTodos() {
     try {
       setLoading(true);
       setError(null);
@@ -40,7 +40,7 @@ export function useTodos() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const addTodo = async (title: string): Promise<boolean> => {
     try {
@@ -60,7 +60,10 @@ export function useTodos() {
         throw new Error("Failed to create todo");
       }
 
-      const newTodo: Todo = await response.json();
+      const createdTodo: Todo = await response.json();
+      // JSONPlaceholder는 실제로 저장하지 않고 새 할 일에 늘 id 201을 돌려줌
+      // → 여러 개를 더해도 겹치지 않게 화면에서 쓸 임시 번호를 붙임
+      const newTodo: Todo = { ...createdTodo, id: Date.now() };
 
       // 새 todo를 목록 맨 앞에 추가
       setTodos((prev) => [newTodo, ...prev]);
@@ -73,6 +76,12 @@ export function useTodos() {
   };
 
   const updateTodo = async (todo: Todo): Promise<boolean> => {
+    // JSONPlaceholder에는 1~200번만 있어 새로 만든 할 일은 PUT이 404 → 화면에서만 바꿈
+    if (todo.id > 200) {
+      setTodos((prev) => prev.map((t) => (t.id === todo.id ? todo : t)));
+      return true;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/todos/${todo.id}`, {
         method: "PUT",

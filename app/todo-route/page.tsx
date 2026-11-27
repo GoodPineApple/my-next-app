@@ -17,23 +17,21 @@ export default function TodoRoutePage() {
 
   // 초기 todos 로드
   useEffect(() => {
+    async function fetchTodos() {
+      try {
+        const response = await fetch("/api/todos");
+        if (!response.ok) throw new Error("Failed to fetch");
+        const data = await response.json();
+        // 처음 10개만 표시
+        setTodos(data.slice(0, 10));
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchTodos();
   }, []);
-
-  const fetchTodos = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/todos");
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
-      // 처음 10개만 표시
-      setTodos(data.slice(0, 10));
-    } catch (error) {
-      console.error("Error fetching todos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const addTodo = async () => {
     if (!newTodo.trim()) return;
@@ -54,9 +52,12 @@ export default function TodoRoutePage() {
 
       if (!response.ok) throw new Error("Failed to create");
       const createdTodo = await response.json();
+      // JSONPlaceholder는 실제로 저장하지 않고 새 할 일에 늘 id 201을 돌려줌
+      // → 여러 개를 더해도 겹치지 않게 화면에서 쓸 임시 번호를 붙임
+      const newTodoItem: Todo = { ...createdTodo, id: Date.now() };
 
       // 새 todo를 목록 맨 앞에 추가
-      setTodos((prev) => [createdTodo, ...prev]);
+      setTodos((prev) => [newTodoItem, ...prev]);
       setNewTodo("");
     } catch (error) {
       console.error("Error creating todo:", error);
@@ -66,6 +67,14 @@ export default function TodoRoutePage() {
   };
 
   const toggleTodo = async (todo: Todo) => {
+    // JSONPlaceholder에는 1~200번만 있어 새로 만든 할 일은 PUT이 404 → 화면에서만 바꿈
+    if (todo.id > 200) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === todo.id ? { ...t, completed: !t.completed } : t))
+      );
+      return;
+    }
+
     try {
       const response = await fetch(`/api/todos/${todo.id}`, {
         method: "PUT",

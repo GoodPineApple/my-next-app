@@ -17,7 +17,7 @@ export async function GET() {
     }
     const todos: Todo[] = await response.json();
     return NextResponse.json(todos);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch todos" },
       { status: 500 }
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     const newTodo: Todo = await response.json();
     return NextResponse.json(newTodo);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to create todo" },
       { status: 500 }
